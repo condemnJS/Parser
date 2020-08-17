@@ -1,41 +1,24 @@
-class Field {
-    constructor(url) {
-        this.url = url;
-    }
-    async response(){
-        try {
-            let promise = await fetch(`assets/js/json/${this.url}.json`);
-            let response = await promise.json();
-            return response;
-        } catch (e) {
-            console.log('Not Found 404')
-        }
-    }
-}
+
 class Select {
     constructor(el, data) {
         this.$data = data;
         this.$element = el;
-        this.ArrOptions = ['addpost', 'colorsheme', 'interview', 'signin', 'signup']
     }
-    FillingSelect(){
-        this.ArrOptions.forEach((item)=>{
-            this.$element.append(`<option>${item}</option>`)
+    FillingFile(){
+        this.$element.change((event)=> {
+            let file = event.target.files[0];
+            let reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = () => {
+                let json = JSON.parse(reader.result);
+                this.$data.empty();
+                let data = new DataInfo(json, $("#data-info"));
+                data.check();
+                data.reference();
+                data.button();
+            };
         });
     }
-    selectOptions(){
-        this.FillingSelect();
-        this.$element.change((event)=>{
-           new Field(event.target.value).response().then((resolve)=>{
-               this.$data.empty();
-               let data = new DataInfo(resolve, $("#data-info"));
-               data.check();
-               data.reference();
-               data.button();
-           });
-        });
-    }
-
 }
 class DataInfo {
     constructor(options, el) {
@@ -138,5 +121,8 @@ class DataInfo {
         });
     }
 }
-let output = new Select($("#select-control"), $("#data-info"));
-output.selectOptions();
+let output = new Select($("#cont"), $("#data-info"));
+output.FillingFile();
+
+
+
